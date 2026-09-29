@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jusenho Game</title>
+<meta name="description" content="Mini games from Carson for dorm Jusenho.">
+<meta name="theme-color" content="#cf4f00">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23cf4f00'/%3E%3Crect x='7' y='5' width='18' height='22' fill='%23fbfaf7' stroke='%23141210' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Caveat:wght@600;700&family=Pirata+One&family=Roboto:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#cf4f00; --orange-deep:#b84400; --hot:#ff6a13; --yellow:#f7c948;
+  --ink:#141210; --paper:#f4efe6; --white:#fbfaf7;
+  --shadow:6px 9px 16px rgba(60,18,0,.45);
+  --gutter:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--orange);-webkit-text-size-adjust:100%}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{background:var(--orange);color:var(--white);font-family:Roboto,system-ui,sans-serif;overflow-x:hidden;min-height:100dvh}
+img,video,canvas{display:block;max-width:100%}
+button{font:inherit;cursor:pointer;color:inherit}
+.ic{width:1em;height:1em;flex:none}
+body::after{content:"";position:fixed;inset:-50%;z-index:90;pointer-events:none;opacity:.16;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain .5s steps(1) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}}
+
+/* ---------- jusenho visual language (same as the first site) ---------- */
+.wm{font-family:"Pirata One",serif;font-weight:400;color:var(--white);line-height:.9;letter-spacing:.01em;
+  -webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:3px 4px 0 var(--ink),0 10px 22px rgba(40,10,0,.35)}
+.ar{font-family:"Aref Ruqaa",serif;font-weight:700;color:var(--white);direction:rtl;-webkit-text-stroke:1px var(--ink);paint-order:stroke fill;text-shadow:2px 3px 0 var(--ink)}
+.lbl{font-style:italic;font-weight:400;color:var(--white);text-shadow:0 2px 8px rgba(60,18,0,.4)}
+.fr{position:absolute;border:3px solid var(--ink);background:#777;box-shadow:var(--shadow);overflow:hidden}
+.fr img,.fr video{width:100%;height:100%;object-fit:cover}
+.ol{position:absolute;border:2px solid var(--white)} .ol.y{border-color:var(--yellow)} .ol.k{border-color:var(--ink);border-width:3px}
+.blk{position:absolute;background:var(--hot);box-shadow:4px 6px 12px rgba(60,18,0,.3)}
+.tape{position:absolute;width:74px;height:22px;background:rgba(244,239,230,.72);box-shadow:0 1px 3px rgba(0,0,0,.2);z-index:3}
+.jit{animation:jit .45s steps(1) infinite}
+@keyframes jit{0%{transform:translate(0,0) rotate(0)}33%{transform:translate(.6px,-.8px) rotate(.25deg)}66%{transform:translate(-.7px,.5px) rotate(-.3deg)}}
+.boil{animation:boil .42s steps(1) infinite}
+@keyframes boil{0%{filter:url(#b1)}33%{filter:url(#b2)}66%{filter:url(#b3)}}
+.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:.6em;border:3px solid var(--ink);background:var(--yellow);color:var(--ink);
+  font-weight:900;font-style:italic;text-transform:lowercase;font-size:1.05rem;padding:.8em 1.2em;white-space:nowrap;
+  box-shadow:4px 5px 0 var(--ink);transition:translate .15s cubic-bezier(.16,1,.3,1),box-shadow .15s}
+.btn:hover{translate:-2px -2px;box-shadow:6px 7px 0 var(--ink)}
+.btn:active{translate:3px 4px;box-shadow:1px 1px 0 var(--ink)}
+.btn:focus-visible,.gcard:focus-visible,.mcard:focus-visible{outline:3px solid var(--white);outline-offset:3px}
+.sec-h{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.sec-h .wm{font-size:clamp(3.2rem,13vw,6.4rem)}
+.sec-h .ar{font-size:clamp(1.7rem,6.5vw,2.8rem);padding-bottom:.35em}
+.sec-sub{font-size:1.05rem;margin:8px 0 26px;display:block}
+
+/* ---------- start screen ---------- */
+#intro{position:fixed;inset:0;z-index:80;background:var(--orange);display:grid;place-items:center;align-content:center;gap:24px;padding:var(--gutter);text-align:center}
+#intro .flip{position:relative;width:min(50vw,220px);aspect-ratio:3/4}
+#intro .flip .fr{inset:0}
+#intro .flip .ol{inset:-14px 18px 30px -18px} #intro .flip .ol.y{inset:26px -16px -16px 22px}
+#intro .title{font-size:clamp(3.2rem,14vw,5.4rem)}
+#intro .bar{width:min(70vw,280px);height:14px;border:3px solid var(--ink);background:var(--paper);box-shadow:3px 4px 0 var(--ink)}
+#intro .bar i{display:block;height:100%;width:0;background:var(--yellow);border-right:3px solid var(--ink)}
+#start{visibility:hidden;font-size:1.3rem;padding:.8em 1.8em}
+#start.ready{visibility:visible;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{background:var(--white)}}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;z-index:60;left:50%;bottom:max(12px,env(safe-area-inset-bottom));translate:-50% 0;display:flex;gap:4px;padding:5px;
+  background:var(--ink);border:3px solid var(--ink);box-shadow:4px 5px 0 rgba(20,18,16,.35)}
+.nav a,.nav button{display:grid;place-items:center;gap:2px;min-width:58px;padding:7px 8px 5px;color:var(--white);text-decoration:none;
+  font-size:.7rem;font-style:italic;background:none;border:0}
+.nav .ic{font-size:22px}
+.nav a.on{background:var(--yellow);color:var(--ink)}
+.nav a:focus-visible,.nav button:focus-visible{outline:2px solid var(--yellow)}
+
+/* ---------- menu / hero ---------- */
+#menu{min-height:100dvh;max-width:1280px;margin:0 auto;padding:72px var(--gutter) 120px;display:grid;gap:30px;align-items:center}
+.menu-copy .lbl{font-size:1.05rem;display:block;margin-bottom:10px}
+.menu-copy h1{font-size:clamp(4rem,19vw,8rem);margin-bottom:6px}
+.menu-copy h1 span{display:block;font-size:.62em;color:var(--yellow)}
+.games{display:grid;gap:14px;margin-top:26px;max-width:460px}
+.gcard{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;text-decoration:none;color:var(--ink);
+  background:var(--paper);border:3px solid var(--ink);box-shadow:4px 5px 0 var(--ink);padding:12px 16px 12px 12px;
+  transition:translate .18s cubic-bezier(.16,1,.3,1),box-shadow .18s}
+.gcard:nth-child(2){rotate:.8deg} .gcard:nth-child(3){rotate:-.8deg}
+.gcard:hover{translate:-3px -3px;box-shadow:7px 8px 0 var(--ink)}
+.gcard:active{translate:3px 4px;box-shadow:1px 1px 0 var(--ink)}
+.gcard .n{font-family:"Pirata One",serif;font-size:2.8rem;line-height:.8;color:var(--orange);width:1.3em;text-align:center}
+.gcard b{display:block;font-weight:900;font-style:italic;font-size:1.25rem;text-transform:lowercase;line-height:1.05}
+.gcard small{font-style:italic;font-size:.9rem;opacity:.75}
+.gcard .ic{font-size:30px}
+.stage3d{position:relative;height:min(62dvh,560px);min-height:360px}
+.stage3d canvas{position:absolute;inset:0;width:100%!important;height:100%!important;touch-action:pan-y}
+.stage3d .ol{inset:8% 12% 10% 8%} .stage3d .ol.y{inset:16% 4% 2% 20%}
+.stage3d .hint{position:absolute;right:6%;bottom:2%;font-size:.95rem;display:flex;align-items:center;gap:6px}
+@media (min-width:900px){ #menu{grid-template-columns:1fr 1.1fr;padding-top:40px} .stage3d{height:min(78dvh,680px)} }
+
+/* ---------- game shell ---------- */
+.game{max-width:1100px;margin:0 auto;padding:88px var(--gutter) 110px;position:relative}
+.gwrap{display:grid;gap:28px;align-items:start}
+.hud{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--white);border:3px solid var(--ink);
+  padding:6px 12px;font-weight:900;font-style:italic;font-size:1.05rem;font-variant-numeric:tabular-nums;box-shadow:3px 4px 0 rgba(20,18,16,.3)}
+.chip.y{background:var(--yellow);color:var(--ink)}
+.chip .ic{font-size:20px}
+.side{display:grid;gap:18px;align-content:start}
+.howto{background:var(--paper);color:var(--ink);border:3px solid var(--ink);box-shadow:var(--shadow);padding:18px 18px 16px;rotate:-1deg;position:relative}
+.howto .tape{top:-11px;left:24px;rotate:-5deg}
+.howto h3{font-weight:900;font-style:italic;text-transform:lowercase;font-size:1.2rem;margin-bottom:10px}
+.howto li{list-style:none;display:flex;gap:10px;align-items:center;margin:8px 0;font-size:.98rem;line-height:1.3}
+.howto li img{width:30px;height:40px;object-fit:cover;border:2px solid var(--ink);flex:none}
+.howto li .sw{width:30px;height:40px;border:2px solid var(--ink);flex:none;display:grid;place-items:center;font-size:18px}
+.stickers{position:relative;height:170px}
+.stickers .fr{width:96px;aspect-ratio:3/4}
+@media (min-width:900px){ .gwrap{grid-template-columns:1fr 300px} }
+
+/* catch */
+.box{position:relative;width:min(100%,520px);aspect-ratio:3/4;max-height:74dvh;margin:0 auto;border:3px solid var(--ink);box-shadow:var(--shadow);
+  background:linear-gradient(var(--orange-deep),var(--orange));overflow:hidden}
+.box canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.over{position:absolute;inset:0;z-index:2;display:grid;place-items:center;align-content:center;gap:14px;text-align:center;padding:20px;
+  background:rgba(184,68,0,.86)}
+.over[hidden]{display:none}
+.over .wm{font-size:clamp(3rem,13vw,4.6rem)}
+.over p{font-weight:700;font-style:italic;max-width:26ch;line-height:1.35}
+.over .big{font-family:"Pirata One",serif;font-size:5.4rem;line-height:.8;color:var(--yellow);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:3px 4px 0 var(--ink)}
+.stars{display:flex;gap:6px;font-size:40px;color:var(--yellow);filter:drop-shadow(2px 3px 0 var(--ink))}
+.stars .off{color:rgba(20,18,16,.35);filter:none}
+
+/* memory */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(100%,520px);margin:0 auto;perspective:900px;position:relative}
+@media (min-width:640px){ .grid{grid-template-columns:repeat(4,1fr);width:min(100%,640px)} }
+.mcard{position:relative;aspect-ratio:3/4;border:0;background:none;padding:0;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.34,1.4,.64,1)}
+.mcard.open,.mcard.done{transform:rotateY(180deg)}
+.mcard .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:3px solid var(--ink);box-shadow:3px 4px 0 var(--ink);overflow:hidden}
+.mcard .back{background:var(--hot);display:grid;place-items:center}
+.mcard .back .ol{inset:9px}
+.mcard .back span{font-family:"Pirata One",serif;font-size:clamp(2.4rem,9vw,3.4rem);color:var(--white);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:2px 3px 0 var(--ink)}
+.mcard .front{transform:rotateY(180deg);background:#888}
+.mcard .front img{width:100%;height:100%;object-fit:cover}
+.mcard.done .front{box-shadow:0 0 0 4px var(--yellow),3px 4px 0 4px var(--ink)}
+.mcard.shake{animation:shake .4s steps(4)}
+@keyframes shake{25%{translate:-5px 0}50%{translate:5px 0}75%{translate:-3px 0}}
+#memOver{position:absolute;inset:-12px;z-index:3}
+
+/* ---------- album ---------- */
+#album{position:relative;min-height:100dvh;overflow:hidden;padding:84px var(--gutter) 40px}
+#album .head{max-width:1100px;margin:0 auto;position:relative;z-index:2}
+.book{position:relative;width:min(88vw,440px);aspect-ratio:3/4;margin:34px auto 0;perspective:1600px}
+.rings{position:absolute;left:10%;right:10%;top:-16px;z-index:40;display:flex;justify-content:space-between;pointer-events:none}
+.rings i{width:14px;height:30px;border:3px solid var(--ink);border-radius:8px;background:linear-gradient(90deg,#bbb,#fff,#999)}
+.page{position:absolute;inset:0;transform-origin:50% 0;transform-style:preserve-3d;will-change:transform}
+.page .pf,.page .pb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:3px solid var(--ink);box-shadow:var(--shadow);overflow:hidden;
+  background:var(--paper) repeating-linear-gradient(transparent 0 27px,rgba(207,79,0,.13) 27px 28px)}
+.page .pb{transform:rotateX(180deg);background:var(--paper)}
+.pf .ttl{position:absolute;font-size:clamp(2.6rem,11vw,3.6rem)}
+.pf .note{position:absolute;font-family:Caveat,cursive;font-weight:700;font-size:1.45rem;color:var(--ink);line-height:1}
+.pf .stk{position:absolute;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--yellow);color:var(--ink);border:3px solid var(--ink);font-size:26px;box-shadow:2px 3px 0 var(--ink)}
+.pf .fr{box-shadow:4px 6px 10px rgba(60,18,0,.35)}
+.pf .ar{position:absolute;font-size:2rem}
+.pf.cover{background:var(--hot)}
+.page-n{position:absolute;right:12px;bottom:8px;font-family:Caveat,cursive;font-weight:700;color:var(--ink);opacity:.6;font-size:1.2rem}
+.flipcue{text-align:center;margin-top:22px;font-size:1rem;display:flex;justify-content:center;gap:8px;align-items:center}
+
+/* letter */
+#letter{position:relative;padding:40px var(--gutter) 150px;max-width:760px;margin:0 auto}
+.sheet{position:relative;background:var(--paper) repeating-linear-gradient(transparent 0 37px,rgba(207,79,0,.16) 37px 38px);color:var(--ink);
+  border:3px solid var(--ink);box-shadow:var(--shadow);padding:44px 22px 30px 44px;rotate:-.6deg}
+.sheet::before{content:"";position:absolute;left:28px;top:0;bottom:0;width:2px;background:rgba(207,79,0,.45)}
+.sheet .tape.a{top:-12px;left:30px;rotate:-6deg} .sheet .tape.b{top:-12px;right:30px;rotate:5deg}
+.sheet .to{font-family:"Pirata One",serif;font-size:clamp(2.4rem,10vw,3.6rem);color:var(--orange);line-height:1;margin-bottom:10px}
+.sheet p{font-family:Caveat,cursive;font-weight:700;font-size:clamp(1.55rem,5.6vw,2.1rem);line-height:38px}
+.sheet p .w{opacity:.12;transition:opacity .2s}
+.sheet p .w.on{opacity:1}
+.sheet .sig{display:flex;align-items:center;gap:12px;justify-content:flex-end;margin-top:22px;font-family:"Pirata One",serif;font-size:2.4rem;color:var(--ink)}
+.sheet .sig .ic{color:var(--orange);font-size:.8em}
+.stamp{position:absolute;right:-8px;bottom:-34px;rotate:-10deg;border:4px solid var(--ink);background:var(--yellow);color:var(--ink);padding:8px 14px;
+  font-weight:900;font-style:italic;text-transform:uppercase;font-size:1.1rem;box-shadow:3px 4px 0 var(--ink);opacity:0}
+#letter .deco{position:absolute;width:clamp(80px,17vw,130px);aspect-ratio:3/4}
+.end{text-align:center;margin-top:80px;display:grid;justify-items:center;gap:14px}
+.end .wm{font-size:clamp(2.6rem,11vw,4.4rem)}
+
+@media (prefers-reduced-motion:reduce){
+  body::after,.jit,.boil,#start.ready{animation:none}
+  .book{aspect-ratio:auto;perspective:none}
+  .page{position:relative;aspect-ratio:3/4;margin-bottom:24px}
+  .page .pb{display:none}
+  .sheet p .w{opacity:1}
+  .stamp{opacity:1}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-arrow-counter-clockwise" viewBox="0 0 256 256" fill="currentColor"><path d="M228,128a100,100,0,0,1-98.66,100H128a99.39,99.39,0,0,1-68.62-27.29,12,12,0,0,1,16.48-17.45,76,76,0,1,0-1.57-109c-.13.13-.25.25-.39.37L54.89,92H72a12,12,0,0,1,0,24H24a12,12,0,0,1-12-12V56a12,12,0,0,1,24,0V76.72L57.48,57.06A100,100,0,0,1,228,128Z"/></symbol><symbol id="i-arrow-down" viewBox="0 0 256 256" fill="currentColor"><path d="M208.49,152.49l-72,72a12,12,0,0,1-17,0l-72-72a12,12,0,0,1,17-17L116,187V40a12,12,0,0,1,24,0V187l51.51-51.52a12,12,0,0,1,17,17Z"/></symbol><symbol id="i-basket" viewBox="0 0 256 256" fill="currentColor"><path d="M140,128v40a12,12,0,0,1-24,0V128a12,12,0,0,1,24,0Zm28.06-1.19-4,40a12,12,0,0,0,10.75,13.13c.4,0,.81.06,1.2.06a12,12,0,0,0,11.93-10.81l4-40a12,12,0,0,0-23.88-2.38Zm-80.12,0a12,12,0,0,0-23.88,2.38l4,40A12,12,0,0,0,80,180c.39,0,.8,0,1.2-.06a12,12,0,0,0,10.75-13.13Zm156-37.22-15.07,113A20.06,20.06,0,0,1,209,220H47a20.06,20.06,0,0,1-19.82-17.36l-15.07-113A12,12,0,0,1,24,76H66.55L119,16.1a12,12,0,0,1,18.06,0L189.45,76H232a12,12,0,0,1,11.89,13.59ZM98.45,76h59.1L128,42.22Zm119.84,24H37.71l12.8,96h155Z"/></symbol><symbol id="i-book-open-text" viewBox="0 0 256 256" fill="currentColor"><path d="M232,44H160a43.86,43.86,0,0,0-32,13.85A43.86,43.86,0,0,0,96,44H24A12,12,0,0,0,12,56V200a12,12,0,0,0,12,12H96a20,20,0,0,1,20,20,12,12,0,0,0,24,0,20,20,0,0,1,20-20h72a12,12,0,0,0,12-12V56A12,12,0,0,0,232,44ZM96,188H36V68H96a20,20,0,0,1,20,20V192.81A43.79,43.79,0,0,0,96,188Zm124,0H160a43.71,43.71,0,0,0-20,4.83V88a20,20,0,0,1,20-20h60ZM164,96h32a12,12,0,0,1,0,24H164a12,12,0,0,1,0-24Zm44,52a12,12,0,0,1-12,12H164a12,12,0,0,1,0-24h32A12,12,0,0,1,208,148Z"/></symbol><symbol id="i-cards" viewBox="0 0 256 256" fill="currentColor"><path d="M180,72H36A20,20,0,0,0,16,92V204a20,20,0,0,0,20,20H180a20,20,0,0,0,20-20V92A20,20,0,0,0,180,72Zm-4,128H40V96H176ZM240,52V176a12,12,0,0,1-24,0V56H64a12,12,0,0,1,0-24H220A20,20,0,0,1,240,52Z"/></symbol><symbol id="i-chat-circle-slash" viewBox="0 0 256 256" fill="currentColor"><path d="M56.88,31.93A12,12,0,1,0,39.12,48.07l7.81,8.59A108,108,0,0,0,31.85,177.23L21,209.66A20,20,0,0,0,46.34,235l32.43-10.81a108.08,108.08,0,0,0,112.55-8.66l7.8,8.58a12,12,0,0,0,17.76-16.14ZM128,212a83.91,83.91,0,0,1-42-11.27,12,12,0,0,0-9.82-1l-29.79,9.93,9.93-29.79a12,12,0,0,0-1-9.82,84,84,0,0,1,7.94-95.49l111.84,123A83.83,83.83,0,0,1,128,212Zm108-84a107.22,107.22,0,0,1-8.65,42.4A12,12,0,0,1,205.28,161a84.07,84.07,0,0,0-102.77-113,12,12,0,0,1-7.27-22.87A108.08,108.08,0,0,1,236,128Z"/></symbol><symbol id="i-confetti" viewBox="0 0 256 256" fill="currentColor"><path d="M114.32,49.8A19.79,19.79,0,0,0,81.72,57L29.22,201.41A19.82,19.82,0,0,0,47.75,228a20,20,0,0,0,6.84-1.22L199,174.28a19.79,19.79,0,0,0,7.24-32.6ZM104.19,183.21l-31.4-31.4L82.94,123.9l49.16,49.16Zm-52.42,26.4Zm12-32.91L79.3,192.26l-24.45,8.89ZM157,164,92,99l10-27.58L184.57,154ZM128,40V16a12,12,0,0,1,24,0V40a12,12,0,0,1-24,0Zm116.48,83.51a12,12,0,0,1-17,17l-16-16a12,12,0,0,1,17-17Zm-.69-40.13-24,8a12,12,0,0,1-7.59-22.77l24-8a12,12,0,1,1,7.59,22.77ZM156.6,65.93C159.83,47.47,173.39,36,192,36c6.45,0,8.69-2.49,10-4.92a18,18,0,0,0,2-7.22V24a12,12,0,0,1,24,0c0,14.47-9.59,36-36,36-4.94,0-10.21,1.19-11.76,10.06A12,12,0,0,1,168.43,80a12.35,12.35,0,0,1-2.08-.18A12,12,0,0,1,156.6,65.93Z"/></symbol><symbol id="i-game-controller" viewBox="0 0 256 256" fill="currentColor"><path d="M176,116H152a12,12,0,0,1,0-24h24a12,12,0,0,1,0,24ZM104,92h-4V88a12,12,0,0,0-24,0v4H72a12,12,0,0,0,0,24h4v4a12,12,0,0,0,24,0v-4h4a12,12,0,0,0,0-24ZM244.76,202.94a40,40,0,0,1-61,5.35,7,7,0,0,1-.53-.56L144.67,164H111.33L72.81,207.73c-.17.19-.35.38-.53.56A40,40,0,0,1,4.62,173.05a1.18,1.18,0,0,1,0-.2L21,88.79A63.88,63.88,0,0,1,83.88,36H172a64.08,64.08,0,0,1,62.93,52.48,1.8,1.8,0,0,1,0,.19l16.36,84.17a1.77,1.77,0,0,1,0,.2A39.74,39.74,0,0,1,244.76,202.94ZM172,140a40,40,0,0,0,0-80H83.89A39.9,39.9,0,0,0,44.62,93.06a1.55,1.55,0,0,0,0,.21l-16.34,84a16,16,0,0,0,13,18.44,16.07,16.07,0,0,0,13.86-4.21L96.9,144.07a12,12,0,0,1,9-4.07Zm55.76,37.31-7-35.95a63.84,63.84,0,0,1-44.27,22.46l24.41,27.72a16,16,0,0,0,26.85-14.23Z"/></symbol><symbol id="i-hand-tap" viewBox="0 0 256 256" fill="currentColor"><path d="M228,156v36c0,13.85-1.63,26.52-4.58,35.68a12,12,0,1,1-22.84-7.36c2.14-6.65,3.42-17.24,3.42-28.32V156a8,8,0,0,0-16,0v4a12,12,0,0,1-24,0V140a8,8,0,0,0-16,0v12a12,12,0,0,1-24,0V84a8,8,0,0,0-16,0V192a12,12,0,0,1-22.18,6.34l-18.68-30-.21-.34A8,8,0,0,0,53,175.92L78.27,217.8a12,12,0,0,1-20.56,12.39l-25.31-42-.12-.2A32,32,0,0,1,84,150.83V84a32,32,0,0,1,64,0v25a32,32,0,0,1,36.78,17A32,32,0,0,1,228,156ZM56,96A12,12,0,0,0,68,84a48,48,0,0,1,96,0,12,12,0,0,0,24,0A72,72,0,0,0,44,84,12,12,0,0,0,56,96Z"/></symbol><symbol id="i-heart-break" viewBox="0 0 256 256" fill="currentColor"><path d="M178,36a65.6,65.6,0,0,0-46.67,19.33L128,58.66l-3.33-3.33A66,66,0,0,0,12,102c0,72.34,105.81,130.14,110.31,132.57a12,12,0,0,0,11.38,0C138.19,232.14,244,174.34,244,102A66.08,66.08,0,0,0,178,36Zm-5.49,142.36A328.69,328.69,0,0,1,128,210.16a328.69,328.69,0,0,1-44.51-31.8C61.82,159.77,36,131.42,36,102a42,42,0,0,1,71.7-29.7L111,75.63l-7.52,7.52a12,12,0,0,0,0,17l21.7,21.7-13.7,13.69a12,12,0,1,0,17,17l22.18-22.19a12,12,0,0,0,0-17L129,91.63,148.3,72.3A42,42,0,0,1,220,102C220,131.42,194.18,159.77,172.51,178.36Z"/></symbol><symbol id="i-heart" viewBox="0 0 256 256" fill="currentColor"><path d="M178,36c-20.09,0-37.92,7.93-50,21.56C115.92,43.93,98.09,36,78,36a66.08,66.08,0,0,0-66,66c0,72.34,105.81,130.14,110.31,132.57a12,12,0,0,0,11.38,0C138.19,232.14,244,174.34,244,102A66.08,66.08,0,0,0,178,36Zm-5.49,142.36A328.69,328.69,0,0,1,128,210.16a328.69,328.69,0,0,1-44.51-31.8C61.82,159.77,36,131.42,36,102A42,42,0,0,1,78,60c17.8,0,32.7,9.4,38.89,24.54a12,12,0,0,0,22.22,0C145.3,69.4,160.2,60,178,60a42,42,0,0,1,42,42C220,131.42,194.18,159.77,172.51,178.36Z"/></symbol><symbol id="i-house" viewBox="0 0 256 256" fill="currentColor"><path d="M222.14,105.85l-80-80a20,20,0,0,0-28.28,0l-80,80A19.86,19.86,0,0,0,28,120v96a12,12,0,0,0,12,12h64a12,12,0,0,0,12-12V164h24v52a12,12,0,0,0,12,12h64a12,12,0,0,0,12-12V120A19.86,19.86,0,0,0,222.14,105.85ZM204,204H164V152a12,12,0,0,0-12-12H104a12,12,0,0,0-12,12v52H52V121.65l76-76,76,76Z"/></symbol><symbol id="i-lightning" viewBox="0 0 256 256" fill="currentColor"><path d="M219.71,117.38a12,12,0,0,0-7.25-8.52L161.28,88.39l10.59-70.61a12,12,0,0,0-20.64-10l-112,120a12,12,0,0,0,4.31,19.33l51.18,20.47L84.13,238.22a12,12,0,0,0,20.64,10l112-120A12,12,0,0,0,219.71,117.38ZM113.6,203.55l6.27-41.77a12,12,0,0,0-7.41-12.92L68.74,131.37,142.4,52.45l-6.27,41.77a12,12,0,0,0,7.41,12.92l43.72,17.49Z"/></symbol><symbol id="i-play" viewBox="0 0 256 256" fill="currentColor"><path d="M234.49,111.07,90.41,22.94A20,20,0,0,0,60,39.87V216.13a20,20,0,0,0,30.41,16.93l144.08-88.13a19.82,19.82,0,0,0,0-33.86ZM84,208.85V47.15L216.16,128Z"/></symbol><symbol id="i-seal-check" viewBox="0 0 256 256" fill="currentColor"><path d="M228.75,100.05c-3.52-3.67-7.15-7.46-8.34-10.33-1.06-2.56-1.14-7.83-1.21-12.47-.15-10-.34-22.44-9.18-31.27s-21.27-9-31.27-9.18c-4.64-.07-9.91-.15-12.47-1.21-2.87-1.19-6.66-4.82-10.33-8.34C148.87,20.46,140.05,12,128,12s-20.87,8.46-27.95,15.25c-3.67,3.52-7.46,7.15-10.33,8.34-2.56,1.06-7.83,1.14-12.47,1.21C67.25,37,54.81,37.14,46,46S37,67.25,36.8,77.25c-.07,4.64-.15,9.91-1.21,12.47-1.19,2.87-4.82,6.66-8.34,10.33C20.46,107.13,12,116,12,128S20.46,148.87,27.25,156c3.52,3.67,7.15,7.46,8.34,10.33,1.06,2.56,1.14,7.83,1.21,12.47.15,10,.34,22.44,9.18,31.27s21.27,9,31.27,9.18c4.64.07,9.91.15,12.47,1.21,2.87,1.19,6.66,4.82,10.33,8.34C107.13,235.54,116,244,128,244s20.87-8.46,27.95-15.25c3.67-3.52,7.46-7.15,10.33-8.34,2.56-1.06,7.83-1.14,12.47-1.21,10-.15,22.44-.34,31.27-9.18s9-21.27,9.18-31.27c.07-4.64.15-9.91,1.21-12.47,1.19-2.87,4.82-6.66,8.34-10.33C235.54,148.87,244,140.05,244,128S235.54,107.13,228.75,100.05Zm-17.32,39.29c-4.82,5-10.28,10.72-13.19,17.76-2.82,6.8-2.93,14.16-3,21.29-.08,5.36-.19,12.71-2.15,14.66s-9.3,2.07-14.66,2.15c-7.13.11-14.49.22-21.29,3-7,2.91-12.73,8.37-17.76,13.19C135.78,214.84,130.4,220,128,220s-7.78-5.16-11.34-8.57c-5-4.82-10.72-10.28-17.76-13.19-6.8-2.82-14.16-2.93-21.29-3-5.36-.08-12.71-.19-14.66-2.15s-2.07-9.3-2.15-14.66c-.11-7.13-.22-14.49-3-21.29-2.91-7-8.37-12.73-13.19-17.76C41.16,135.78,36,130.4,36,128s5.16-7.78,8.57-11.34c4.82-5,10.28-10.72,13.19-17.76,2.82-6.8,2.93-14.16,3-21.29C60.88,72.25,61,64.9,63,63s9.3-2.07,14.66-2.15c7.13-.11,14.49-.22,21.29-3,7-2.91,12.73-8.37,17.76-13.19C120.22,41.16,125.6,36,128,36s7.78,5.16,11.34,8.57c5,4.82,10.72,10.28,17.76,13.19,6.8,2.82,14.16,2.93,21.29,3,5.36.08,12.71.19,14.66,2.15s2.07,9.3,2.15,14.66c.11,7.13.22,14.49,3,21.29,2.91,7,8.37,12.73,13.19,17.76,3.41,3.56,8.57,8.94,8.57,11.34S214.84,135.78,211.43,139.34ZM176.49,95.51a12,12,0,0,1,0,17l-56,56a12,12,0,0,1-17,0l-24-24a12,12,0,1,1,17-17L112,143l47.51-47.52A12,12,0,0,1,176.49,95.51Z"/></symbol><symbol id="i-smiley-wink" viewBox="0 0 256 256" fill="currentColor"><path d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212ZM76,108a16,16,0,1,1,16,16A16,16,0,0,1,76,108Zm112,0a12,12,0,0,1-12,12H152a12,12,0,0,1,0-24h24A12,12,0,0,1,188,108Zm-9.61,50c-11,19.06-29.39,30-50.39,30s-39.36-10.93-50.39-30a12,12,0,0,1,20.78-12c3.89,6.73,12.91,18,29.61,18s25.72-11.28,29.61-18a12,12,0,1,1,20.78,12Z"/></symbol><symbol id="i-sparkle" viewBox="0 0 256 256" fill="currentColor"><path d="M199,125.31l-49.88-18.39L130.69,57a19.92,19.92,0,0,0-37.38,0L74.92,106.92,25,125.31a19.92,19.92,0,0,0,0,37.38l49.88,18.39L93.31,231a19.92,19.92,0,0,0,37.38,0l18.39-49.88L199,162.69a19.92,19.92,0,0,0,0-37.38Zm-63.38,35.16a12,12,0,0,0-7.11,7.11L112,212.28l-16.47-44.7a12,12,0,0,0-7.11-7.11L43.72,144l44.7-16.47a12,12,0,0,0,7.11-7.11L112,75.72l16.47,44.7a12,12,0,0,0,7.11,7.11L180.28,144ZM140,40a12,12,0,0,1,12-12h12V16a12,12,0,0,1,24,0V28h12a12,12,0,0,1,0,24H188V64a12,12,0,0,1-24,0V52H152A12,12,0,0,1,140,40ZM252,88a12,12,0,0,1-12,12h-4v4a12,12,0,0,1-24,0v-4h-4a12,12,0,0,1,0-24h4V72a12,12,0,0,1,24,0v4h4A12,12,0,0,1,252,88Z"/></symbol><symbol id="i-speaker-high" viewBox="0 0 256 256" fill="currentColor"><path d="M157.27,21.22a12,12,0,0,0-12.64,1.31L75.88,76H32A20,20,0,0,0,12,96v64a20,20,0,0,0,20,20H75.88l68.75,53.47A12,12,0,0,0,164,224V32A12,12,0,0,0,157.27,21.22ZM36,100H68v56H36Zm104,99.46L92,162.13V93.87l48-37.33ZM212,128a44,44,0,0,1-11,29.11,12,12,0,1,1-18-15.88,20,20,0,0,0,0-26.43,12,12,0,0,1,18-15.86A43.94,43.94,0,0,1,212,128Zm40,0a83.87,83.87,0,0,1-21.39,56,12,12,0,0,1-17.89-16,60,60,0,0,0,0-80,12,12,0,1,1,17.88-16A83.87,83.87,0,0,1,252,128Z"/></symbol><symbol id="i-speaker-slash" viewBox="0 0 256 256" fill="currentColor"><path d="M56.88,31.93A12,12,0,1,0,39.12,48.07L64.51,76H32A20,20,0,0,0,12,96v64a20,20,0,0,0,20,20H75.88l68.75,53.47A12,12,0,0,0,164,224V185.44l35.12,38.63a12,12,0,0,0,17.76-16.14ZM36,100H68v56H36Zm104,99.46L92,162.13V106.24L140,159Zm-31-134a12,12,0,0,1,2.11-16.84l33.51-26.07A12,12,0,0,1,164,32V94.94a12,12,0,0,1-24,0V56.54l-14.15,11A12,12,0,0,1,109,65.44Zm74,49.35a12,12,0,0,1,18-15.85,44,44,0,0,1,5.55,50.21,12,12,0,0,1-21-11.55A19.67,19.67,0,0,0,188,128,20,20,0,0,0,183,114.79ZM252,128a84.18,84.18,0,0,1-19.11,53.35,12,12,0,1,1-18.53-15.25A60,60,0,0,0,212.73,88a12,12,0,1,1,17.88-16A83.87,83.87,0,0,1,252,128Z"/></symbol><symbol id="i-star-fill" viewBox="0 0 256 256" fill="currentColor"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></symbol><symbol id="i-star" viewBox="0 0 256 256" fill="currentColor"><path d="M243,96a20.33,20.33,0,0,0-17.74-14l-56.59-4.57L146.83,24.62a20.36,20.36,0,0,0-37.66,0L87.35,77.44,30.76,82A20.45,20.45,0,0,0,19.1,117.88l43.18,37.24-13.2,55.7A20.37,20.37,0,0,0,79.57,233L128,203.19,176.43,233a20.39,20.39,0,0,0,30.49-22.15l-13.2-55.7,43.18-37.24A20.43,20.43,0,0,0,243,96ZM172.53,141.7a12,12,0,0,0-3.84,11.86L181.58,208l-47.29-29.08a12,12,0,0,0-12.58,0L74.42,208l12.89-54.4a12,12,0,0,0-3.84-11.86L41.2,105.24l55.4-4.47a12,12,0,0,0,10.13-7.38L128,41.89l21.27,51.5a12,12,0,0,0,10.13,7.38l55.4,4.47Z"/></symbol><symbol id="i-timer" viewBox="0 0 256 256" fill="currentColor"><path d="M128,44a96,96,0,1,0,96,96A96.11,96.11,0,0,0,128,44Zm0,168a72,72,0,1,1,72-72A72.08,72.08,0,0,1,128,212ZM164.49,99.51a12,12,0,0,1,0,17l-28,28a12,12,0,0,1-17-17l28-28A12,12,0,0,1,164.49,99.51ZM92,16A12,12,0,0,1,104,4h48a12,12,0,0,1,0,24H104A12,12,0,0,1,92,16Z"/></symbol><symbol id="i-trophy" viewBox="0 0 256 256" fill="currentColor"><path d="M232,60H212V48a12,12,0,0,0-12-12H56A12,12,0,0,0,44,48V60H24A20,20,0,0,0,4,80V96a44.05,44.05,0,0,0,44,44h.77A84.18,84.18,0,0,0,116,195.15V212H96a12,12,0,0,0,0,24h64a12,12,0,0,0,0-24H140V195.11c30.94-4.51,56.53-26.2,67-55.11h1a44.05,44.05,0,0,0,44-44V80A20,20,0,0,0,232,60ZM28,96V84H44v28c0,1.21,0,2.41.09,3.61A20,20,0,0,1,28,96Zm160,15.1c0,33.33-26.71,60.65-59.54,60.9A60,60,0,0,1,68,112V60H188ZM228,96a20,20,0,0,1-16.12,19.62c.08-1.5.12-3,.12-4.52V84h16Z"/></symbol><symbol id="i-x" viewBox="0 0 256 256" fill="currentColor"><path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"/></symbol></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="b1"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4"/></filter>
+  <filter id="b2"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4"/></filter>
+  <filter id="b3"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="13" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4"/></filter>
+</svg>
+
+<div id="intro">
+  <div class="flip" aria-hidden="true">
+    <div class="ol y boil"></div><div class="ol boil"></div>
+    <div class="fr"><img id="introImg" src="img/j1.webp" alt=""></div>
+  </div>
+  <div class="wm title boil">jusenho game</div>
+  <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
+  <button class="btn" id="start" type="button">press start <svg class="ic"><use href="#i-play"/></svg></button>
+</div>
+
+<nav class="nav" aria-label="Games">
+  <a href="#menu" data-go="#menu" class="on"><svg class="ic"><use href="#i-house"/></svg>menu</a>
+  <a href="#catch" data-go="#catch"><svg class="ic"><use href="#i-basket"/></svg>catch</a>
+  <a href="#match" data-go="#match"><svg class="ic"><use href="#i-cards"/></svg>match</a>
+  <a href="#album" data-go="#album"><svg class="ic"><use href="#i-book-open-text"/></svg>album</a>
+  <button id="mute" type="button" aria-pressed="false"><svg class="ic"><use href="#i-speaker-high"/></svg>sound</button>
+</nav>
+
+<main>
+  <!-- MENU -->
+  <section id="menu">
+    <div class="menu-copy">
+      <span class="lbl m-in">made by carson, for dorm jusenho</span>
+      <h1 class="wm boil m-in">jusenho<span>game</span></h1>
+      <div class="games">
+        <a class="gcard m-in" href="#catch" data-go="#catch"><span class="n">01</span><span><b>catch the photocards</b><small>move the basket, catch them all</small></span><svg class="ic"><use href="#i-basket"/></svg></a>
+        <a class="gcard m-in" href="#match" data-go="#match"><span class="n">02</span><span><b>memory match</b><small>find every pair</small></span><svg class="ic"><use href="#i-cards"/></svg></a>
+        <a class="gcard m-in" href="#album" data-go="#album"><span class="n">03</span><span><b>our album</b><small>a scrapbook, and a letter</small></span><svg class="ic"><use href="#i-book-open-text"/></svg></a>
+      </div>
+    </div>
+    <div class="stage3d m-in" aria-label="Three floating photocards of Juhoon, Seonghyeon and Keonho">
+      <div class="ol y boil"></div><div class="ol boil"></div>
+      <canvas id="gl"></canvas>
+      <span class="lbl hint"><svg class="ic"><use href="#i-hand-tap"/></svg>tap a card</span>
+    </div>
+  </section>
+
+  <!-- GAME 1: CATCH -->
+  <section id="catch" class="game">
+    <div class="sec-h rv"><h2 class="wm boil">catch!</h2><span class="ar">التقط</span></div>
+    <span class="lbl sec-sub rv">30 seconds. Catch as many photocards as you can.</span>
+    <div class="gwrap">
+      <div>
+        <div class="hud">
+          <span class="chip y"><svg class="ic"><use href="#i-star"/></svg><span id="cScore">0</span></span>
+          <span class="chip"><svg class="ic"><use href="#i-timer"/></svg><span id="cTime">30</span>s</span>
+          <span class="chip"><svg class="ic"><use href="#i-trophy"/></svg>best <span id="cBest">0</span></span>
+        </div>
+        <div class="box" id="cBox">
+          <canvas id="cCan"></canvas>
+          <div class="over" id="cStart">
+            <div class="wm boil">ready?</div>
+            <p>Drag or slide to move the basket. Arrow keys work too.</p>
+            <button class="btn" id="cGo" type="button">play <svg class="ic"><use href="#i-play"/></svg></button>
+          </div>
+          <div class="over" id="cEnd" hidden>
+            <span class="lbl">you caught</span>
+            <div class="big" id="cFinal">0</div>
+            <div class="wm boil" id="cRank" style="font-size:clamp(2rem,9vw,3rem)">trainee</div>
+            <button class="btn" id="cAgain" type="button">play again <svg class="ic"><use href="#i-arrow-counter-clockwise"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <aside class="side">
+        <div class="howto rv">
+          <div class="tape"></div>
+          <h3>what falls</h3>
+          <ul>
+            <li><img src="img/j1.webp" alt=""><img src="img/s4.webp" alt=""><img src="img/k2.webp" alt=""><span>member photocard <b>+1</b></span></li>
+            <li><span class="sw" style="background:var(--yellow)"><svg class="ic"><use href="#i-sparkle"/></svg></span><span>golden jusenho card <b>+5</b></span></li>
+            <li><span class="sw" style="background:var(--ink);color:var(--white)"><svg class="ic"><use href="#i-chat-circle-slash"/></svg></span><span>left on read <b>-3</b></span></li>
+          </ul>
+        </div>
+        <div class="stickers rv" aria-hidden="true">
+          <div class="fr" style="left:4%;top:8px;rotate:-6deg"><img class="jit flip2" src="img/k4.webp" data-flip="img/k4-sk.webp" alt=""></div>
+          <div class="fr" style="left:36%;top:26px;rotate:4deg"><img class="jit flip2" src="img/j3.webp" data-flip="img/j3-sk.webp" alt=""></div>
+          <div class="fr" style="left:66%;top:4px;rotate:-3deg"><img class="jit flip2" src="img/s1.webp" data-flip="img/s1-sk.webp" alt=""></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- GAME 2: MEMORY -->
+  <section id="match" class="game">
+    <div class="sec-h rv"><h2 class="wm boil">memory match</h2><span class="ar">تذكّر</span></div>
+    <span class="lbl sec-sub rv">Flip two cards. Same photo? They stay open.</span>
+    <div class="hud" style="justify-content:center">
+      <span class="chip y"><svg class="ic"><use href="#i-cards"/></svg><span id="mMoves">0</span> moves</span>
+      <span class="chip"><svg class="ic"><use href="#i-seal-check"/></svg><span id="mPairs">0</span>/6</span>
+      <button class="chip" id="mReset" type="button"><svg class="ic"><use href="#i-arrow-counter-clockwise"/></svg>shuffle</button>
+    </div>
+    <div class="grid" id="mGrid">
+      <div class="over" id="memOver" hidden>
+        <div class="wm boil">cleared!</div>
+        <div class="stars" id="mStars"></div>
+        <p id="mMsg"></p>
+        <button class="btn" id="mAgain" type="button">play again <svg class="ic"><use href="#i-arrow-counter-clockwise"/></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALBUM -->
+  <section id="album" aria-labelledby="album-h">
+    <div class="head">
+      <div class="sec-h"><h2 class="wm boil" id="album-h">our album</h2><span class="ar">ألبومنا</span></div>
+    </div>
+    <div class="book" id="book">
+      <div class="rings" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="page"><div class="pf cover"><div class="wm ttl boil" style="left:8%;top:6%">our album</div><div class="ol boil" style="left:14%;top:26%;width:70%;height:52%"></div><div class="ol y boil" style="left:6%;top:34%;width:30%;height:52%"></div><div class="fr" style="left:10%;top:30%;width:78%;height:46%;rotate:-2deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/trio2.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="blk" style="left:30%;top:80%;width:62%;height:11%;display:grid;place-items:center"><span class="lbl" style="font-size:1rem">for dorm jusenho, from carson</span></div><div class="stk" style="left:6%;top:82%;rotate:-10deg"><svg class="ic"><use href="#i-heart"/></svg></div></div><div class="pb"></div></div><div class="page"><div class="pf "><div class="wm ttl boil" style="right:7%;top:5%">juhoon</div><div class="fr" style="left:7%;top:15%;width:56%;height:50%;rotate:-3deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/j1.webp" data-flip="img/j1-sk.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="fr" style="left:60%;top:37%;width:33%;height:29%;rotate:5deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/j3.webp" data-flip="img/j3-sk.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="fr" style="left:10%;top:68%;width:30%;height:25%;rotate:-6deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/j2.webp" data-flip="img/j2-sk.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="note" style="left:46%;top:74%;rotate:-4deg">member 01</div><div class="stk" style="right:9%;top:84%;rotate:12deg"><svg class="ic"><use href="#i-star"/></svg></div><div class="ar" style="left:9%;top:4%">جوهون</div><span class="page-n">1</span></div><div class="pb"></div></div><div class="page"><div class="pf "><div class="wm ttl boil" style="right:7%;top:5%">seonghyeon</div><div class="fr" style="left:7%;top:15%;width:56%;height:50%;rotate:-3deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/s4.webp" data-flip="img/s4-sk.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="fr" style="left:60%;top:37%;width:33%;height:29%;rotate:5deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/s1.webp" data-flip="img/s1-sk.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="fr" style="left:10%;top:68%;width:30%;height:25%;rotate:-6deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/s3.webp" data-flip="img/s3-sk.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="note" style="left:46%;top:74%;rotate:-4deg">member 02</div><div class="stk" style="right:9%;top:84%;rotate:12deg"><svg class="ic"><use href="#i-sparkle"/></svg></div><div class="ar" style="left:9%;top:4%">سونغهيون</div><span class="page-n">2</span></div><div class="pb"></div></div><div class="page"><div class="pf "><div class="wm ttl boil" style="right:7%;top:5%">keonho</div><div class="fr" style="left:7%;top:15%;width:56%;height:50%;rotate:-3deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/k2.webp" data-flip="img/k2-sk.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="fr" style="left:60%;top:37%;width:33%;height:29%;rotate:5deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/k4.webp" data-flip="img/k4-sk.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="fr" style="left:10%;top:68%;width:30%;height:25%;rotate:-6deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/k7.webp" data-flip="img/k7-sk.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="note" style="left:46%;top:74%;rotate:-4deg">my muse</div><div class="stk" style="right:9%;top:84%;rotate:12deg"><svg class="ic"><use href="#i-heart"/></svg></div><div class="ar" style="left:9%;top:4%">كونهو</div><span class="page-n">3</span></div><div class="pb"></div></div><div class="page"><div class="pf "><div class="wm ttl boil" style="left:8%;top:5%">jusenho</div><div class="fr" style="left:10%;top:16%;width:62%;height:56%;rotate:-2deg;overflow:visible"><div class="tape" style="top:-10px;left:35%;rotate:-5deg"></div><video id="jreel" src="img/jusenho-reel.mp4" poster="img/trio1.webp" muted loop playsinline preload="metadata" aria-label="Hand-animated clip of Juhoon, Seonghyeon and Keonho" style="position:absolute;inset:0"></video></div><div class="fr" style="left:58%;top:58%;width:36%;height:28%;rotate:6deg;overflow:visible"><div class="tape" style="top:-10px;left:30%;rotate:-6deg;width:56px;height:18px"></div><img src="img/trio1.webp" data-flip="img/trio1-sk.webp" alt="" loading="lazy" style="position:absolute;inset:0"></div><div class="note" style="left:9%;top:78%;rotate:-3deg">us, one day<br>in the same dorm</div><div class="stk" style="right:8%;top:14%;rotate:10deg"><svg class="ic"><use href="#i-confetti"/></svg></div><div class="ar" style="right:8%;top:28%">معًا</div><span class="page-n">4</span></div><div class="pb"></div></div>
+    </div>
+    <div class="lbl flipcue"><svg class="ic"><use href="#i-arrow-down"/></svg>keep scrolling to turn the pages</div>
+  </section>
+
+  <!-- LETTER -->
+  <section id="letter" aria-labelledby="letter-h">
+    <div class="deco fr" style="left:-2%;top:-10px;rotate:-8deg" aria-hidden="true"><img class="jit" src="img/k4.webp" alt=""></div>
+    <div class="deco fr" style="right:-2%;top:-30px;rotate:7deg" aria-hidden="true"><img class="jit" src="img/trio1.webp" alt=""></div>
+    <div class="sheet" style="margin-top:140px">
+      <div class="tape a"></div><div class="tape b"></div>
+      <h2 class="to" id="letter-h">dear jusenho,</h2>
+      <p id="msg"><span class="w">HELLO</span> <span class="w">JUSENHO</span> <span class="w">GUA</span> <span class="w">AKAN</span> <span class="w">PERTARUHKAN</span> <span class="w">SEMUA</span> <span class="w">JIWA</span> <span class="w">GUA</span> <span class="w">BUAT</span> <span class="w">KALIAN,</span> <span class="w">DEMI</span> <span class="w">KALIAN,</span> <span class="w">AGAR</span> <span class="w">KITA</span> <span class="w">SELALU</span> <span class="w">BERSATU,</span> <span class="w">AGAR</span> <span class="w">DORM</span> <span class="w">KITA</span> <span class="w">MENCAPAI</span> <span class="w">10000K</span> <span class="w">SUBS,</span> <span class="w">MAKA</span> <span class="w">DARI</span> <span class="w">ITU,</span> <span class="w">ACCEPT</span> <span class="w">LAH</span> <span class="w">GUA</span> <span class="w">KE</span> <span class="w">DORM</span> <span class="w">KALIAN,</span> <span class="w">DIJAMIN</span> <span class="w">HIDUP</span> <span class="w">KALIAN</span> <span class="w">BAKAL</span> <span class="w">BERUBAH</span> <span class="w">SETELAH</span> <span class="w">BERTEMU</span> <span class="w">ORANG</span> <span class="w">SEKEREN,</span> <span class="w">SEGANTENG,</span> <span class="w">SEPINTAR,</span> <span class="w">DAN</span> <span class="w">SEONIYAW</span> <span class="w">GUA,</span> <span class="w">GUA</span> <span class="w">SAYANG</span> <span class="w">JUSENHO</span> <span class="w">DENGAN</span> <span class="w">SEPENUH</span> <span class="w">HATI</span> <span class="w">DAN</span> <span class="w">SEPENUH</span> <span class="w">ONIYAWW,</span> <span class="w">PLEASE</span> <span class="w">YAYAYAYAYAYA??</span></p>
+      <div class="sig">carson <svg class="ic"><use href="#i-heart"/></svg></div>
+      <div class="stamp" id="stamp">please accept me</div>
+    </div>
+    <div class="end">
+      <div class="wm boil">thanks for playing</div>
+      <a class="btn" href="#menu" data-go="#menu">back to menu <svg class="ic"><use href="#i-game-controller"/></svg></a>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
+
+gsap.registerPlugin(ScrollTrigger);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[(Math.random() * a.length) | 0];
+const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
+
+function flipbook(img, frames, ms = 160) {
+  if (reduce) return;
+  let n = 0;
+  frames.forEach(s => (new Image().src = s));
+  setInterval(() => { n = (n + 1) % frames.length; img.src = frames[n]; img.style.rotate = rnd(-1.4, 1.4) + "deg"; }, ms);
+}
+
+/* ---------- tiny chiptune blips (WebAudio, no files) ---------- */
+let ac = null, muted = store.get("jsh-mute") === "1";
+const muteBtn = $("#mute");
+function syncMute() {
+  muteBtn.setAttribute("aria-pressed", muted);
+  muteBtn.querySelector("use").setAttribute("href", muted ? "#i-speaker-slash" : "#i-speaker-high");
+}
+syncMute();
+muteBtn.addEventListener("click", () => { muted = !muted; store.set("jsh-mute", muted ? "1" : "0"); syncMute(); });
+function blip(f = 660, d = 0.08, type = "square", slide = 0) {
+  if (muted) return;
+  ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+  const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  if (slide) o.frequency.exponentialRampToValueAtTime(f * slide, t + d);
+  g.gain.setValueAtTime(0.06, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  o.connect(g).connect(ac.destination); o.start(t); o.stop(t + d);
+}
+const tune = notes => notes.forEach((f, i) => setTimeout(() => blip(f, 0.12), i * 110));
+
+/* ---------- smooth scroll + nav ---------- */
+let lenis = null;
+if (!reduce) {
+  lenis = new Lenis({ lerp: 0.1 });
+  lenis.on("scroll", ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+  lenis.stop();
+}
+const go = sel => (lenis ? lenis.scrollTo(sel, { duration: 1.4 }) : $(sel).scrollIntoView());
+$$("[data-go]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); blip(520, 0.06); go(a.dataset.go); }));
+["#menu", "#catch", "#match", "#album"].forEach(id => ScrollTrigger.create({
+  trigger: id, start: "top 55%", end: id === "#album" ? () => "+=" + ($("#album").offsetHeight + $("#letter").offsetHeight) : "bottom 55%",
+  onToggle: s => s.isActive && $$(".nav a").forEach(a => a.classList.toggle("on", a.dataset.go === id)),
+}));
+
+/* ---------- start screen ---------- */
+const introImg = $("#introImg");
+flipbook(introImg, ["j1", "j1-sk", "s4", "s4-sk", "k2", "k2-sk", "trio1", "trio1-sk"].map(n => `img/${n}.webp`), 150);
+const bar = $("#barFill");
+const imgs = $$("img");
+let done = 0;
+const tickBar = () => (bar.style.width = Math.min(100, (done / imgs.length) * 100) + "%");
+imgs.forEach(i => (i.complete ? done++ : i.addEventListener("load", () => { done++; tickBar(); }, { once: true })));
+tickBar();
+const ready = () => { bar.style.width = "100%"; $("#start").classList.add("ready"); $("#start").focus({ preventScroll: true }); };
+Promise.race([new Promise(r => (document.readyState === "complete" ? r() : addEventListener("load", r))), new Promise(r => setTimeout(r, 6000))])
+  .then(() => setTimeout(ready, reduce ? 0 : 500));
+$("#start").addEventListener("click", () => {
+  tune([523, 659, 784, 1047]);
+  const tl = gsap.timeline({ onComplete: () => { $("#intro").remove(); lenis && lenis.start(); ScrollTrigger.refresh(); } });
+  tl.to("#intro .flip", { scale: 1.1, rotate: -4, duration: 0.25, ease: "steps(3)" })
+    .to("#intro", { clipPath: "inset(0 0 100% 0)", duration: 0.85, ease: "expo.inOut" });
+  if (!reduce) tl.from(".m-in", { opacity: 0, y: 34, rotate: () => rnd(-4, 4), duration: 0.6, ease: "steps(5)", stagger: 0.07, clearProps: "transform,opacity" }, "-=0.4");
+});
+
+/* ---------- reveals ---------- */
+if (!reduce) $$(".rv").forEach(el => gsap.from(el, { opacity: 0, y: 36, duration: 0.8, ease: "expo.out",
+  scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none reverse" } }));
+$$(".flip2").forEach(img => flipbook(img, [img.getAttribute("src"), img.dataset.flip], 360));
+
+/* ---------- menu: three holographic photocards (three.js) ---------- */
+(function cards3d() {
+  const canvas = $("#gl"), box = canvas.parentElement;
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch { return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 50);
+  camera.position.set(0, 0, 9);
+  const loader = new THREE.TextureLoader();
+
+  // card back: drawn once on a 2D canvas in the jusenho style
+  function backTexture(name) {
+    const c = document.createElement("canvas"); c.width = 512; c.height = 704;
+    const x = c.getContext("2d");
+    x.fillStyle = "#ff6a13"; x.fillRect(0, 0, 512, 704);
+    x.strokeStyle = "#fbfaf7"; x.lineWidth = 6; x.strokeRect(40, 40, 432, 624);
+    x.strokeStyle = "#f7c948"; x.strokeRect(70, 90, 300, 380);
+    x.font = "150px 'Pirata One'"; x.textAlign = "center"; x.lineJoin = "round";
+    x.lineWidth = 14; x.strokeStyle = "#141210"; x.strokeText("jsh", 256, 400); x.fillStyle = "#fbfaf7"; x.fillText("jsh", 256, 400);
+    x.font = "italic 700 40px Roboto"; x.fillStyle = "#141210"; x.fillText(name, 256, 590);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  }
+
+  // holographic foil: rainbow bands that slide with the card's tilt, plus a black print border
+  const holo = map => new THREE.ShaderMaterial({
+    uniforms: { map: { value: map }, uTilt: { value: 0 }, uTime: { value: 0 } },
+    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }`,
+    fragmentShader: `
+      uniform sampler2D map; uniform float uTilt; uniform float uTime; varying vec2 vUv;
+      vec3 hue(float h){ return clamp(abs(mod(h*6.+vec3(0.,4.,2.),6.)-3.)-1.,0.,1.); }
+      void main(){
+        vec4 c = texture2D(map, vUv);
+        float band = vUv.x*1.4 + vUv.y*0.9 + uTilt*1.6 + uTime*0.05;
+        vec3 foil = hue(fract(band));
+        float mask = smoothstep(.55,.95, sin(band*7.)*.5+.5) * .22;
+        vec3 col = mix(c.rgb, c.rgb + foil*.4, mask);
+        float e = min(min(vUv.x,1.-vUv.x)*0.72, min(vUv.y,1.-vUv.y));
+        col = mix(vec3(0.078,0.07,0.063), col, step(.028, e));
+        gl_FragColor = vec4(col,1.);
+        #include <colorspace_fragment>
+      }`,
+  });
+
+  const data = [["j1", "juhoon"], ["s4", "seonghyeon"], ["k2", "keonho"]];
+  const cards = [];
+  const geo = new THREE.PlaneGeometry(2.2, 3.02);
+  document.fonts.load("150px 'Pirata One'").finally(() => {
+    data.forEach(([img, name], i) => {
+      const tex = loader.load(`img/${img}.webp`); tex.colorSpace = THREE.SRGBColorSpace;
+      const g = new THREE.Group();
+      const front = new THREE.Mesh(geo, holo(tex));
+      const back = new THREE.Mesh(geo, holo(backTexture(name)));
+      back.rotation.y = Math.PI;
+      g.add(front, back);
+      const base = { x: (i - 1) * 2.05, y: i === 1 ? 0.35 : -0.1, rz: (i - 1) * -0.16 };
+      g.userData = { base, flip: 0, spin: 0, name };
+      g.position.set(base.x, base.y, i === 1 ? 0.3 : 0);
+      g.rotation.z = base.rz;
+      scene.add(g); cards.push(g);
+    });
+    if (!reduce) cards.forEach((c, i) => gsap.from(c.position, { y: -6, duration: 1.1, ease: "back.out(1.4)", delay: 0.2 + i * 0.12 }));
+  });
+
+  function size() {
+    const w = box.clientWidth, h = box.clientHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / h;
+    camera.position.z = Math.max(9, 7 / (0.63 * camera.aspect)); // step back on narrow screens so all three cards fit
+    camera.updateProjectionMatrix();
+  }
+  size(); addEventListener("resize", size);
+
+  let mx = 0, my = 0, running = false, last = 0;
+  box.addEventListener("pointermove", e => { const r = box.getBoundingClientRect(); mx = (e.clientX - r.left) / r.width - 0.5; my = (e.clientY - r.top) / r.height - 0.5; });
+  box.addEventListener("pointerleave", () => (mx = my = 0));
+
+  // tap a card to flip it
+  const ray = new THREE.Raycaster(), v = new THREE.Vector2();
+  canvas.addEventListener("click", e => {
+    const r = canvas.getBoundingClientRect();
+    v.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(v, camera);
+    const hit = ray.intersectObjects(cards, true)[0];
+    if (!hit) return;
+    const g = hit.object.parent;
+    g.userData.flip += Math.PI;
+    blip(880, 0.1, "triangle", 1.5);
+    gsap.to(g.rotation, { y: g.userData.flip, duration: 0.8, ease: "back.out(1.6)" });
+    gsap.fromTo(g.position, { z: g.position.z }, { z: g.position.z + 0.8, duration: 0.4, yoyo: true, repeat: 1, ease: "power2.out" });
+  });
+
+  function frame(t) {
+    if (!running) return;
+    requestAnimationFrame(frame);
+    const s = t / 1000;
+    const stepped = t - last > 125; // stop-motion wobble on threes
+    if (stepped) last = t;
+    cards.forEach((g, i) => {
+      const b = g.userData.base;
+      g.position.y = b.y + Math.sin(s * 1.3 + i * 1.7) * 0.12;
+      if (stepped) g.rotation.z = b.rz + rnd(-0.01, 0.01);
+      g.rotation.x += (my * 0.5 - g.rotation.x) * 0.08;
+      if (!gsap.isTweening(g.rotation)) g.rotation.y += (g.userData.flip + mx * 0.9 - g.rotation.y) * 0.08;
+      g.children.forEach(m => { m.material.uniforms.uTilt.value = g.rotation.y + g.rotation.x; m.material.uniforms.uTime.value = s; });
+    });
+    renderer.render(scene, camera);
+  }
+  ScrollTrigger.create({ trigger: "#menu", start: "top bottom", end: "bottom top",
+    onToggle: st => { running = st.isActive; if (running) requestAnimationFrame(frame); } });
+})();
+
+/* ---------- confetti (shared by both games) ---------- */
+function confettiIn(host) {
+  if (reduce) return;
+  const c = document.createElement("canvas");
+  c.style.cssText = "position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4";
+  host.appendChild(c);
+  const w = host.clientWidth, h = host.clientHeight, dpr = Math.min(devicePixelRatio, 2);
+  c.width = w * dpr; c.height = h * dpr;
+  const x = c.getContext("2d"); x.scale(dpr, dpr);
+  const cols = ["#fbfaf7", "#f7c948", "#141210", "#ff6a13"];
+  const bits = Array.from({ length: 120 }, (_, i) => ({ x: w / 2, y: h * 0.55, vx: rnd(-7, 7), vy: rnd(-13, -4), r: rnd(0, 6), vr: rnd(-0.3, 0.3), s: rnd(6, 12), c: cols[i % 4], k: i % 3 }));
+  const t0 = performance.now();
+  (function tick(t) {
+    x.clearRect(0, 0, w, h);
+    bits.forEach(b => {
+      b.vy += 0.3; b.vx *= 0.99; b.x += b.vx; b.y += b.vy; b.r += b.vr;
+      x.save(); x.translate(b.x, b.y); x.rotate(b.r); x.fillStyle = b.c; x.strokeStyle = "#141210"; x.lineWidth = 1.5;
+      if (b.k === 0) { x.beginPath(); x.arc(0, 0, b.s / 2, 0, 7); x.fill(); x.stroke(); } else { x.fillRect(-b.s / 2, -b.s * 0.7, b.s, b.s * 1.4); x.strokeRect(-b.s / 2, -b.s * 0.7, b.s, b.s * 1.4); }
+      x.restore();
+    });
+    t - t0 < 2600 ? requestAnimationFrame(tick) : c.remove();
+  })(t0);
+}
+
+/* ---------- GAME 1: catch the photocards ---------- */
+(function catchGame() {
+  const box = $("#cBox"), can = $("#cCan"), x = can.getContext("2d");
+  const POOL = ["j1", "j2", "j3", "j4", "s1", "s2", "s3", "s4", "k1", "k2", "k3", "k4", "k5", "k6", "k7", "k8", "k9"];
+  const IM = {};
+  [...POOL, "trio1"].forEach(n => { IM[n] = new Image(); IM[n].src = `img/${n}.webp`; });
+  const icon = (id, color) => { const i = new Image(); const sym = $(`#i-${id}`).innerHTML;
+    i.src = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="${color}">${sym}</svg>`); return i; };
+  const IC_BAD = icon("chat-circle-slash", "#fbfaf7"), IC_GOLD = icon("sparkle", "#141210");
+
+  let W = 0, H = 0, dpr = 1, items = [], pops = [], score = 0, time = 30, playing = false, spawnT = 0, lastT = 0, shake = 0, squash = 0, jitterT = 0;
+  const basket = { x: 0.5, tx: 0.5, w: 0.3 };
+  let best = +(store.get("jsh-best") || 0);
+  $("#cBest").textContent = best;
+
+  function size() {
+    const r = box.getBoundingClientRect(); dpr = Math.min(devicePixelRatio, 2);
+    W = r.width; H = r.height; can.width = W * dpr; can.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!playing) draw();
+  }
+  new ResizeObserver(size).observe(box);
+
+  function spawn() {
+    const roll = Math.random();
+    const type = roll < 0.08 ? "gold" : roll < 0.24 ? "bad" : "card";
+    const cw = Math.max(46, W * 0.13);
+    items.push({ type, img: type === "gold" ? "trio1" : pick(POOL), x: rnd(cw / 2, W - cw / 2), y: -cw * 1.4, w: cw, h: cw * 1.36,
+      vy: rnd(H * 0.22, H * 0.34) * (1 + (30 - time) * 0.03), rot: rnd(-0.4, 0.4), vr: rnd(-1.5, 1.5), j: 0 });
+  }
+
+  function roundBasket(bx, by, bw, bh) {
+    // trapezoid basket with woven lines, drawn like the paper cut-outs
+    x.save(); x.translate(bx, by); x.scale(1 + squash * 0.12, 1 - squash * 0.18);
+    x.beginPath(); x.moveTo(-bw / 2, -bh / 2); x.lineTo(bw / 2, -bh / 2); x.lineTo(bw * 0.38, bh / 2); x.lineTo(-bw * 0.38, bh / 2); x.closePath();
+    x.fillStyle = "#f7c948"; x.fill(); x.lineWidth = 3; x.strokeStyle = "#141210"; x.stroke();
+    x.beginPath(); for (let i = 1; i < 4; i++) { const yy = -bh / 2 + (bh * i) / 4; const k = 0.5 - (0.12 * i) / 4; x.moveTo(-bw * k, yy); x.lineTo(bw * k, yy); } x.lineWidth = 2; x.stroke();
+    x.fillStyle = "#ff6a13"; x.fillRect(-bw / 2 - 6, -bh / 2 - 8, bw + 12, 12); x.strokeRect(-bw / 2 - 6, -bh / 2 - 8, bw + 12, 12);
+    x.font = `${Math.round(bh * 0.46)}px 'Pirata One'`; x.textAlign = "center"; x.textBaseline = "middle";
+    x.lineJoin = "round"; x.lineWidth = 4; x.strokeText("jsh", 0, 4); x.fillStyle = "#fbfaf7"; x.fillText("jsh", 0, 4);
+    x.restore();
+  }
+
+  function drawCard(it) {
+    x.save(); x.translate(it.x, it.y); x.rotate(it.rot + it.j);
+    x.fillStyle = "rgba(60,18,0,.35)"; x.fillRect(-it.w / 2 + 4, -it.h / 2 + 6, it.w, it.h);
+    if (it.type === "bad") {
+      x.fillStyle = "#141210"; x.fillRect(-it.w / 2, -it.h / 2, it.w, it.h);
+      if (IC_BAD.complete) x.drawImage(IC_BAD, -it.w * 0.32, -it.w * 0.32, it.w * 0.64, it.w * 0.64);
+    } else {
+      const im = IM[it.img];
+      if (im.complete && im.naturalWidth) {
+        const s = Math.max(it.w / im.naturalWidth, it.h / im.naturalHeight), sw = it.w / s, sh = it.h / s;
+        x.drawImage(im, (im.naturalWidth - sw) / 2, (im.naturalHeight - sh) / 2, sw, sh, -it.w / 2, -it.h / 2, it.w, it.h);
+      }
+      if (it.type === "gold") { x.lineWidth = 7; x.strokeStyle = "#f7c948"; x.strokeRect(-it.w / 2, -it.h / 2, it.w, it.h);
+        if (IC_GOLD.complete) { x.fillStyle = "#f7c948"; x.beginPath(); x.arc(it.w / 2 - 4, -it.h / 2 + 4, 13, 0, 7); x.fill(); x.drawImage(IC_GOLD, it.w / 2 - 13, -it.h / 2 - 5, 18, 18); } }
+    }
+    x.lineWidth = 3; x.strokeStyle = "#141210"; x.strokeRect(-it.w / 2, -it.h / 2, it.w, it.h);
+    x.restore();
+  }
+
+  function draw() {
+    x.clearRect(0, 0, W, H);
+    x.save();
+    if (shake > 0) x.translate(rnd(-shake, shake), rnd(-shake, shake));
+    // white/yellow outline frames in the background, like the edits
+    x.lineWidth = 2; x.strokeStyle = "rgba(251,250,247,.5)"; x.strokeRect(W * 0.08, H * 0.1, W * 0.4, H * 0.32);
+    x.strokeStyle = "rgba(247,201,72,.55)"; x.strokeRect(W * 0.52, H * 0.34, W * 0.38, H * 0.3);
+    items.forEach(drawCard);
+    const bw = W * basket.w, bh = bw * 0.5;
+    roundBasket(basket.x * W, H - bh * 0.9, bw, bh);
+    pops.forEach(p => { x.globalAlpha = Math.max(0, p.life); x.font = `${Math.round(W * 0.09)}px 'Pirata One'`; x.textAlign = "center";
+      x.lineWidth = 5; x.strokeStyle = "#141210"; x.strokeText(p.t, p.x, p.y); x.fillStyle = p.c; x.fillText(p.t, p.x, p.y); });
+    x.globalAlpha = 1;
+    x.restore();
+  }
+
+  function loop(t) {
+    if (!playing) return;
+    requestAnimationFrame(loop);
+    const real = Math.min(0.25, (t - lastT) / 1000 || 0), dt = Math.min(0.05, real); lastT = t;
+    time -= real;
+    $("#cTime").textContent = Math.max(0, Math.ceil(time));
+    if (time <= 0) return end();
+    spawnT -= dt;
+    if (spawnT <= 0) { spawn(); spawnT = Math.max(0.28, 0.7 - (30 - time) * 0.014); }
+    basket.x += (basket.tx - basket.x) * Math.min(1, dt * 16);
+    const bw = W * basket.w, bh = bw * 0.5, top = H - bh * 1.4;
+    jitterT += dt; const hop = jitterT > 0.125; if (hop) jitterT = 0;
+    for (let i = items.length - 1; i >= 0; i--) {
+      const it = items[i];
+      it.y += it.vy * dt; it.rot += it.vr * dt * 0.3;
+      if (hop) it.j = rnd(-0.04, 0.04);
+      const caught = it.y + it.h * 0.3 > top && it.y < top + bh * 0.6 && Math.abs(it.x - basket.x * W) < bw * 0.5;
+      if (caught) {
+        const v = it.type === "gold" ? 5 : it.type === "bad" ? -3 : 1;
+        score = Math.max(0, score + v);
+        pops.push({ t: v > 0 ? "+" + v : String(v), x: it.x, y: top - 10, life: 1, c: v > 1 ? "#f7c948" : v > 0 ? "#fbfaf7" : "#ff6a13" });
+        if (v < 0) { shake = 9; blip(160, 0.25, "sawtooth", 0.5); } else { squash = 1; v > 1 ? tune([784, 988, 1319]) : blip(660 + score * 8, 0.07); }
+        $("#cScore").textContent = score;
+        gsap.fromTo("#cScore", { scale: 1.6 }, { scale: 1, duration: 0.3, ease: "back.out(3)" });
+        items.splice(i, 1);
+      } else if (it.y - it.h > H) items.splice(i, 1);
+    }
+    pops.forEach(p => { p.y -= 60 * dt; p.life -= dt * 1.4; });
+    pops = pops.filter(p => p.life > 0);
+    shake = Math.max(0, shake - dt * 30); squash = Math.max(0, squash - dt * 5);
+    draw();
+  }
+
+  function start() {
+    blip(523, 0.1); items = []; pops = []; score = 0; time = 30; spawnT = 0.3; lastT = performance.now();
+    $("#cScore").textContent = 0; $("#cStart").hidden = true; $("#cEnd").hidden = true;
+    playing = true; lenis && lenis.scrollTo("#cBox", { offset: -110 }); requestAnimationFrame(loop);
+  }
+  function end() {
+    playing = false; draw();
+    const rank = score < 15 ? "trainee" : score < 35 ? "rookie" : score < 60 ? "main dancer" : "jusenho's favorite";
+    $("#cFinal").textContent = score; $("#cRank").textContent = rank;
+    if (score > best) { best = score; store.set("jsh-best", best); $("#cBest").textContent = best; }
+    $("#cEnd").hidden = false;
+    if (!reduce) gsap.from("#cEnd > *", { opacity: 0, y: 30, scale: 0.8, stagger: 0.08, duration: 0.5, ease: "back.out(2)" });
+    tune([659, 523, 784, 1047]); confettiIn(box);
+  }
+  $("#cGo").addEventListener("click", start);
+  $("#cAgain").addEventListener("click", start);
+
+  const setX = cx => { const r = box.getBoundingClientRect(); basket.tx = Math.min(1 - basket.w / 2, Math.max(basket.w / 2, (cx - r.left) / r.width)); };
+  can.addEventListener("pointerdown", e => { setX(e.clientX); can.setPointerCapture(e.pointerId); });
+  can.addEventListener("pointermove", e => { if (playing) setX(e.clientX); });
+  addEventListener("keydown", e => {
+    if (!playing) return;
+    if (e.key === "ArrowLeft") { basket.tx = Math.max(basket.w / 2, basket.tx - 0.12); e.preventDefault(); }
+    if (e.key === "ArrowRight") { basket.tx = Math.min(1 - basket.w / 2, basket.tx + 0.12); e.preventDefault(); }
+  });
+  // pause when scrolled away, so nobody loses a round by accident
+  ScrollTrigger.create({ trigger: box, start: "top bottom", end: "bottom top", onToggle: s => {
+    if (!s.isActive && playing) { playing = false; $("#cStart").hidden = false; $("#cGo").innerHTML = 'resume <svg class="ic"><use href="#i-play"/></svg>';
+      $("#cGo").onclick = e => { e.stopImmediatePropagation(); $("#cStart").hidden = true; playing = true; lastT = performance.now(); requestAnimationFrame(loop); $("#cGo").onclick = null; $("#cGo").innerHTML = 'play <svg class="ic"><use href="#i-play"/></svg>'; }; }
+  } });
+})();
+
+/* ---------- GAME 2: memory match ---------- */
+(function memory() {
+  const grid = $("#mGrid"), over = $("#memOver");
+  const SET = ["k2", "k4", "j1", "s4", "j3", "trio1"];
+  let open = [], lock = false, moves = 0, pairs = 0;
+  function deal() {
+    $$(".mcard", grid).forEach(c => c.remove());
+    const deck = [...SET, ...SET].sort(() => Math.random() - 0.5);
+    deck.forEach((n, i) => {
+      const b = document.createElement("button");
+      b.className = "mcard"; b.type = "button"; b.dataset.n = n; b.setAttribute("aria-label", "Hidden card " + (i + 1));
+      b.innerHTML = `<span class="face back"><span class="ol boil"></span><span>j</span></span><span class="face front"><img src="img/${n}.webp" alt=""></span>`;
+      b.addEventListener("click", () => flip(b));
+      grid.appendChild(b);
+    });
+    open = []; lock = false; moves = 0; pairs = 0; $("#mMoves").textContent = 0; $("#mPairs").textContent = 0; over.hidden = true;
+    if (!reduce) gsap.from(".mcard", { y: -40, opacity: 0, rotate: () => rnd(-20, 20), duration: 0.45, ease: "steps(4)", stagger: 0.04 });
+  }
+  function flip(b) {
+    if (lock || b.classList.contains("open") || b.classList.contains("done")) return;
+    b.classList.add("open"); blip(740, 0.06, "triangle");
+    b.setAttribute("aria-label", "Card showing " + b.dataset.n);
+    open.push(b);
+    if (open.length < 2) return;
+    moves++; $("#mMoves").textContent = moves;
+    const [a, c] = open;
+    if (a.dataset.n === c.dataset.n) {
+      open = []; pairs++; $("#mPairs").textContent = pairs;
+      setTimeout(() => {
+        [a, c].forEach(el => { el.classList.add("done"); el.classList.remove("open"); });
+        tune([784, 1047]);
+        // matched pair switches to its pencil sketch and back, like a flipbook
+        const img = [a, c].map(el => el.querySelector("img"));
+        let k = 0; const iv = setInterval(() => { img.forEach(i => (i.src = `img/${a.dataset.n}${k % 2 ? "" : "-sk"}.webp`)); if (++k > 5) clearInterval(iv); }, 140);
+        if (!reduce) gsap.fromTo([a, c], { scale: 1.12 }, { scale: 1, duration: 0.5, ease: "back.out(3)" });
+        if (pairs === SET.length) win();
+      }, 350);
+    } else {
+      lock = true;
+      setTimeout(() => {
+        [a, c].forEach(el => { el.classList.add("shake"); el.classList.remove("open"); el.setAttribute("aria-label", "Hidden card"); });
+        blip(200, 0.15, "sawtooth", 0.7);
+        setTimeout(() => [a, c].forEach(el => el.classList.remove("shake")), 420);
+        open = []; lock = false;
+      }, 750);
+    }
+  }
+  function win() {
+    const n = moves <= 8 ? 3 : moves <= 12 ? 2 : 1;
+    $("#mStars").innerHTML = [0, 1, 2].map(i => `<svg class="ic ${i < n ? "" : "off"}"><use href="#i-star-fill"/></svg>`).join("");
+    $("#mMsg").textContent = `${moves} moves. ` + (n === 3 ? "Perfect memory, just like how I remember all of you." : n === 2 ? "So close to perfect!" : "You did it! Try for three stars?");
+    setTimeout(() => {
+      over.hidden = false; tune([523, 659, 784, 1047, 1319]); confettiIn(grid);
+      if (!reduce) gsap.from("#memOver > *", { opacity: 0, y: 30, scale: 0.8, stagger: 0.08, duration: 0.5, ease: "back.out(2)" });
+    }, 500);
+  }
+  $("#mReset").addEventListener("click", deal);
+  $("#mAgain").addEventListener("click", deal);
+  deal();
+})();
+
+/* ---------- ALBUM: scrapbook pages flip up as you scroll ---------- */
+const reelVid = $("#jreel");
+if (reelVid) ScrollTrigger.create({ trigger: "#album", start: "top bottom", end: "bottom top", onToggle: s => (s.isActive ? reelVid.play().catch(() => {}) : reelVid.pause()) });
+$$(".page img[data-flip]").forEach(img => flipbook(img, [img.getAttribute("src"), img.dataset.flip], 380));
+if (!reduce) {
+  const pages = $$(".page");
+  pages.forEach((p, i) => (p.style.zIndex = pages.length - i));
+  const tl = gsap.timeline({ scrollTrigger: { trigger: "#album", start: "top top", end: () => "+=" + innerHeight * (pages.length - 1) * 0.9, pin: true, scrub: 0.8,
+    onUpdate: s => { const i = Math.round(s.progress * (pages.length - 1)); if (i !== tl._last) { tl._last = i; blip(420 + i * 60, 0.05, "triangle"); } } } });
+  pages.slice(0, -1).forEach((p, i) => {
+    tl.to(p, { rotationX: 172, duration: 1, ease: "power1.inOut" }, i)
+      .to(p, { opacity: 0, duration: 0.15 }, i + 0.85);
+    // stickers on the next page drop in as it gets revealed
+    tl.from($$(".pf > *:not(.page-n)", pages[i + 1]), { opacity: 0, scale: 0.6, rotate: () => rnd(-25, 25), duration: 0.3, stagger: 0.03, ease: "steps(4)" }, i + 0.1);
+  });
+}
+
+/* ---------- LETTER: handwriting appears word by word ---------- */
+if (!reduce) {
+  const words = $$("#msg .w");
+  ScrollTrigger.create({ trigger: ".sheet", start: "top 70%", end: "bottom 60%", scrub: true,
+    onUpdate: s => { const n = Math.round(s.progress * words.length); words.forEach((w, i) => w.classList.toggle("on", i < n)); } });
+  gsap.fromTo("#stamp", { opacity: 0, scale: 2.4, rotate: -30 }, { opacity: 1, scale: 1, rotate: -10, duration: 0.45, ease: "back.out(2)",
+    scrollTrigger: { trigger: ".sig", start: "top 75%", toggleActions: "play none none reverse", onEnter: () => blip(140, 0.18, "square") } });
+  $$("#letter .deco").forEach((d, i) => gsap.to(d, { y: i ? -120 : -60, ease: "none", scrollTrigger: { trigger: "#letter", start: "top bottom", end: "bottom top", scrub: 1 } }));
+}
+document.fonts && document.fonts.ready.then(() => ScrollTrigger.refresh());
+</script>
+</body>
+</html>
